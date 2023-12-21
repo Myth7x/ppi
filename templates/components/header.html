@@ -1,27 +1,77 @@
 <style>
-	.logo-text {
-		color: #fff;
-		margin-top: 20px;
-		margin-bottom: 20px;
+	.nav {
+		max-width: 100%;
+		margin: 10px;
 		font-family: 'Roboto', sans-serif;
-		font-size: 40px;
+		font-size: 20px;
 		font-weight: bold;
 		user-select: none;
+		text-align: center;
+		text-transform: uppercase;
+		background: linear-gradient(to left, rgba(100, 100, 100, 0.55), transparent);
 	}
-</style>
-<div class="col-12 header" style="margin-left: 20px;">
-	<div class="row">
-		<!-- nav-tabs -->
-		<div class="col-6">
-			<ul class="nav nav-tabs">
-				<li role="presentation" {% if path == 'home' %}class="active"{% endif %}><a href="/home">Home</a></li>
-				<li role="presentation" {% if path == 'rules' %}class="active"{% endif %}><a href="/rules">Rules</a></li>
-			</ul>
-		</div>
 
-		<!-- logo text -->
-		<div class="col-4"> <!-- Change from col-4 to col-6 -->
-			<p class="logo-text">Network Bubi <span class="bi bi-broadcast"></span></p>
+	.nav-tabs {
+		border-bottom: none;
+	}
+
+	.nav-tabs > li > a {
+		color: #fff;
+		background-color: #222;
+	}
+
+	.header-logo {
+		font-family: Consolas, sans-serif;
+		font-size: 20px;
+		font-weight: bold;
+		background: linear-gradient(to right, rgba(100, 100, 100, 0.55), transparent);
+		user-select: none;
+	}
+
+	.header-logo span {
+		color: #fff;
+	}
+
+	.float-center {
+		position: absolute;
+		left: 50%;
+		margin-left: -100px;
+		margin-top: 3px;
+		text-decoration: underline;
+	}
+	body > div.container-fluid.header > div > div > p > a {
+		color: #fff;
+		cursor: pointer;
+	}
+
+	.float-right {
+		position: absolute;
+		right: 0;
+		margin-right: 20px;
+		margin-top: 3px;
+	}
+
+</style>
+<div class="container-fluid header">
+	<div class="row">
+		<div class="col-12">
+			<!-- left title center github right time -->
+			<p class="header-logo">payload bubi <span class="bi bi-cloud-upload-fill"></span><a href="https://github.com/Myth7x/ppi" target="_blank" class="float-center"> repo </a><span class="float-right" id="time"></span></p>
+
 		</div>
+		<ul class="col-10 nav nav-tabs">
+
+			<li role="presentation" {% if path == 'home' %}class="active"{% endif %}><a href="/home">Home</a></li>
+			<li role="presentation" {% if path == 'rules' %}class="active"{% endif %}><a href="/rules">Rules</a></li>
+		</ul>
+
 	</div>
 </div>
+<script>
+	$(document).ready(function() {
+		setInterval(function() {
+			var date = new Date().toLocaleString();
+			$('#time').html(date);
+		}, 1000);
+	});
+</script>
