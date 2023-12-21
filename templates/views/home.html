@@ -1,0 +1,536 @@
+<!--suppress JSJQueryEfficiency -->
+<style>
+	.btn-config {
+		background-color: #222;
+		border-color: #8d8d8d;
+		border-radius: 3px;
+		width: 100%;
+	}
+	.btn-config:hover {
+		background-color: #333;
+		border-color: #8d8d8d;
+		color: #fff;
+
+	}
+
+	#packet-live-view-table {
+		overflow-x: hidden;
+		overflow-y: hidden;
+	}
+
+	.packet-live-view-row {
+		background-color: #222;
+		border-color: #8d8d8d;
+		border-radius: 3px;
+	}
+
+	.packet-live-view-row:hover {
+		background-color: #333;
+		border-color: #8d8d8d;
+	}
+
+	.packet-live-view-col {
+		border: 1px solid #8d8d8d;
+	}
+
+	.btn-col {
+		background-color: #222;
+		border-color: #8d8d8d;
+		border-radius: 3px;
+		font-size: 12px;
+		font-family: 'Roboto', sans-serif;
+		font-weight: bold;
+	}
+
+	.btn-col:hover {
+		background-color: #333;
+		border-color: #8d8d8d;
+		color: #fff;
+	}
+
+	.info-title {
+		text-align: right;
+	}
+
+	/* row colors */
+	.packet-live-view-col {
+		color: #fff;
+		max-width: 500px;
+		overflow-x: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.sniffer-status-stopped {
+		color: #ff0000 !important;
+	}
+	.sniffer-status-started {
+		color: #00ff00 !important;
+	}
+	.sniffer-status-restarting {
+		color: #ffff00 !important;
+	}
+
+</style>
+
+
+<!-- sniffer start/stop toggle button -->
+<div class="col-md-12">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="rule-panel-card col-md-12">
+
+				<div class="row">
+					<div class="col-md-12 info-title">
+						<p class="info-text">Sniffer is currently <span id="sniffer-status" class="sniffer-status-stopped">stopped</span></p>
+					</div>
+					<div class="col-md-12">
+						<button type="button" class="btn btn-config" id="sniffer-start-stop-btn" title="Start sniffer" onclick="manageSniffer('disabled')">Start <span class="bi bi-play-circle-fill" style="color: #00ff00;"></span></button>
+					</div>
+					<div class="col-md-12">
+						<button type="button" class="btn btn-config" id="sniffer-stop-all-btn" title="Kill Everything" onclick="alert('not implemented yet')">Kill Everything <span class="bi bi-x-circle-fill" style="color: #ff0000;"></span></button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- configuration (filter, max packet lifetime, table entries limit) -->
+<div class="col-md-12">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="rule-panel-card col-md-11">
+
+				<!-- this value comes from the backend -->
+				<div class="row">
+					<div class="col-md-6 info-title">
+						<p class="info-text">Sniffer-Filter</p>
+					</div>
+					<div class="col-md-5">
+						<input type="text" class="info-pydivert-mask form-control input-sm" id="pydivert-filter" placeholder="e.g. tcp.DstPort == 80">
+					</div>
+				</div>
+
+				<!-- this values is only used in the frontend -->
+				<div class="row">
+					<div class="col-md-6 info-title">
+						<p class="info-text">Max Packet Lifetime</p>
+					</div>
+					<div class="col-md-5">
+						<input type="text" class="info-pydivert-mask form-control input-sm" id="pydivert-max-packet-lifetime" placeholder="e.g. 100" value="120">
+					</div> seconds
+				</div>
+				<div class="row">
+					<div class="col-md-6 info-title">
+						<p class="info-text">Table Entries Limit</p>
+					</div>
+					<div class="col-md-5">
+						<input type="text" class="info-pydivert-mask form-control input-sm" id="pydivert-table-entries-limit" placeholder="e.g. 100" value="500">
+					</div> count
+				</div>
+				<div class="row">
+					<div class="col-md-6 info-title">
+						<p class="info-text">Update Interval</p>
+					</div>
+					<div class="col-md-5">
+						<input type="text" class="info-pydivert-mask form-control input-sm" id="pydivert-update-interval" placeholder="e.g. 100" value="1750">
+					</div> ms
+				</div>
+			</div>
+			<div class="rule-panel-card col-md-1">
+				<div class="row" style="align-items: center;">
+					<button type="button" class="btn btn-config" id="config-btn-save" title="Save config to database">Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- packet live view -->
+<div class="col-md-12">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-md-6 info-title">
+					<p class="info-text">Live View</p>
+				</div>
+				<div class="col-md-12">
+					<p class="info-text" style="float: right;">Packets: <span id="packet-live-view-count">0x</span></p>
+				</div>
+				<div class="col-md-12">
+					<p class="info-text" style="float: right;">Last Update: <span id="packet-live-view-last-update">0 ms ago</span></p>
+				</div>
+				<div class="col-md-12">
+					<p class="info-text" style="float: right;">Highlighted Packets: <span id="packet-live-view-highlighted-count">0x</span></p>
+				</div>
+				<div class="col-md-12">
+					<button type="button" class="btn btn-config" id="packet-live-view-clear-btn" title="clear all table entries" onclick="$('#packet-live-view-table-body').empty();packets = [];$('packet-live-view-count').text('0x');">Clear</button>
+				</div>
+			</div>
+		</div>
+		<table class="table" id="packet-live-view-table">
+			<thead>
+				<tr>
+					<th class="packet-live-view-col">Time</th>
+					<th class="packet-live-view-col">Ident</th>
+					<th class="packet-live-view-col">Source <span class="bi bi-arrow-right"></span> Destination</th>
+					<th class="packet-live-view-col">Payload</th>
+				</tr>
+			</thead>
+			<tbody id="packet-live-view-table-body"></tbody>
+		</table>
+	</div>
+</div>
+
+
+
+<!-- slidein messages (for notifications, like steam notifications) -->
+<div class="modal fade" id="popup-message" tabindex="-1" role="dialog" aria-labelledby="popup-message-title" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content" style="background-color: rgb(34,34,34); border-color: #8d8d8d;">
+			<div class="modal-header">
+				<h5 class="modal-title" id="popup-message-title">Notification</h5>
+			</div>
+			<div class="modal-body" id="popup-message-text">
+				...
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- color picker modal -->
+<div class="modal fade" id="color-picker-modal" tabindex="-1" role="dialog" aria-labelledby="color-picker-modal-title" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content" style="background-color: rgb(34,34,34); border-color: #8d8d8d;">
+			<div class="modal-header">
+				<h5 class="modal-title" id="color-picker-modal-title">Color Picker</h5>
+			</div>
+			<div class="modal-body" id="color-picker-modal-body">
+				<input type="color" id="color-picker-modal-color" value="#ffffff">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-config" id="color-picker-modal-confirm-btn">Confirm</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	let packets = [];
+	let highlighted_rows = [];
+	let packet_idents = [];
+	let packet_live_view_table_body;
+	let packet_loop;
+	let previous_packet_loop_interval;
+	let last_update = 0;
+
+	const createNotification = (dict, duration = 3000) => {
+		$('#popup-message-title').text(dict['title']);
+		$('#popup-message-text').text(dict['text']);
+		$('#popup-message').modal('show');
+		setTimeout(() => {
+			$('#popup-message').modal('hide');
+		}, duration);
+	}
+
+	const updateSnifferStatus = (state) => {
+		if (state === 'restarting') {
+			$('#sniffer-status').text('restarting');
+			$('#sniffer-status').removeClass('sniffer-status-stopped');
+			$('#sniffer-status').removeClass('sniffer-status-started');
+			$('#sniffer-status').addClass('sniffer-status-restarting');
+			$('#sniffer-start-stop-btn').text('Restarting...');
+			$('#sniffer-start-stop-btn').attr('disabled', 'disabled');
+			$('#sniffer-stop-all-btn').attr('disabled', 'disabled');
+		} else if (state === 'enabled') {
+			$('#sniffer-status').text('started');
+			$('#sniffer-status').removeClass('sniffer-status-stopped');
+			$('#sniffer-status').removeClass('sniffer-status-restarting');
+			$('#sniffer-status').addClass('sniffer-status-started');
+			$('#sniffer-start-stop-btn').text('Stop');
+			$('#sniffer-start-stop-btn').attr('onclick', 'manageSniffer("disabled")');
+			$('#sniffer-start-stop-btn').html('Stop <span class="bi bi-stop-circle-fill" style="color: #ff0000;"></span>');
+			$('#sniffer-start-stop-btn').removeAttr('disabled');
+			$('#sniffer-stop-all-btn').removeAttr('disabled');
+		} else if (state === 'disabled') {
+			$('#sniffer-status').text('stopped');
+			$('#sniffer-status').removeClass('sniffer-status-started');
+			$('#sniffer-status').removeClass('sniffer-status-restarting');
+			$('#sniffer-status').addClass('sniffer-status-stopped');
+			$('#sniffer-start-stop-btn').text('Start');
+			$('#sniffer-start-stop-btn').attr('onclick', 'manageSniffer("enabled")');
+			$('#sniffer-start-stop-btn').html('Start <span class="bi bi-play-circle-fill" style="color: #00ff00;"></span>');
+			$('#sniffer-start-stop-btn').removeAttr('disabled');
+			$('#sniffer-stop-all-btn').removeAttr('disabled');
+		} else {
+			console.log('unknown state: ' + state);
+		}
+	}
+
+	const determinePacketIdentifierFromPayload = (payload) => {
+		let _b = '0x00000000';
+		let _e = '0x00000000';
+		let _p = payload;
+		if (payload.length > 16) {
+			_b = payload.substring(0, 8);
+			_e = payload.substring(payload.length - 8, payload.length);
+			_p = payload.substring(8, payload.length - 8);
+		}
+		return parseInt(_b, 16) + parseInt(_e, 16) + _p.length;
+	}
+
+	const copyToClipboard = (index, h2a = false) => {
+		var $temp = $("<input>");
+		var text = packets[index]['payload'];
+		if (h2a) {
+			text = hex2a(text);
+		}
+		$("body").append($temp);
+		$temp.val(text).select();
+		document.execCommand("copy");
+		$temp.remove();
+		createNotification({
+			title: 'Copied to clipboard',
+			text: text
+		});
+	}
+
+	const manageSniffer = (state) => {
+		$.ajax({
+			url: 'http://127.0.0.1:5001/' + (state === 'enabled' ? 'enable' : 'disable'),
+			type: 'GET',
+			dataType: 'text',
+			data: {},
+			success: (data) => {
+				updateSnifferStatus(JSON.parse(data)['status']);
+				createNotification({
+					title: 'Manage Sniffer',
+					text: 'Successfully ' + (state === 'enabled' ? 'started' : 'stopped') + ' sniffer'
+				});
+			},
+			error: (data) => {
+				console.log("error while starting sniffer: " + data);
+				createNotification({
+					title: 'Error',
+					text: 'Error while ' + (state === 'enabled' ? 'starting' : 'stopping') + ' sniffer'
+				});
+			}
+		});
+	}
+
+	const saveConfiguration = () => {
+		updateSnifferStatus('restarting');
+		$.ajax({
+			url: 'http://127.0.0.1:5001/set_sniffer_filter', // fastapi: def set_sniffer_filter(self, filter: str) -> dict:
+			type: 'GET',
+			dataType: 'text',
+			data: {
+				'filter': $('#pydivert-filter').val()
+			},
+			success: (data) => {
+				updateSnifferStatus(JSON.parse(data)['status']);
+				createNotification({
+					title: 'Success',
+					text: 'Successfully saved config'
+				});
+			},
+			error: (data) => {
+				console.log("error while saving config: " + data);
+			}
+		});
+
+	}
+
+	const highlightRow = (packetIdent='1337') => {
+		$('#color-picker-modal').modal('hide');
+
+		let color = $('#color-picker-modal-color').val();
+		highlighted_rows.push({
+			'ident': packetIdent,
+			'color': color
+		});
+		updatePacketLogHighlights();
+	}
+
+	const showColorPickerModalBeforeHighlight = (packetIdent) => {
+		$('#color-picker-modal').modal('show');
+		$('#color-picker-modal-confirm-btn').attr('onclick', 'highlightRow("' + packetIdent + '")');
+	}
+
+
+	const updatePacketLogHighlights = () => {
+		// new
+		for (let i = 0; i < highlighted_rows.length; i++) {
+			let ident = highlighted_rows[i]['ident'];
+			let color = highlighted_rows[i]['color'];
+			for (let j = 0; j < $('#packet-live-view-table-body').children().length; j++) {
+				if ($('#packet-live-view-table-body').children().eq(j).children().eq(1).text() === ident) {
+					$('#packet-live-view-table-body').children().eq(j).css('background-color', color);
+				}
+			}
+		}
+	}
+
+
+	const requestPacketLog = () => {
+		$.ajax({
+			url: 'http://127.0.0.1:5001/ws_packet_log',
+			type: 'GET',
+			dataType: 'json',
+			data: {},
+			success: (data) => {
+				if (data['list'].length !== 0) {
+					for (let i = 0; i < data['list'].length; i++) {
+						if (packets.length > parseInt($('#pydivert-table-entries-limit').val())) {
+							packets.shift();
+						}
+
+						let packet = data['list'][i];
+						if (packet['payload'] === null || packet['payload'] === undefined) {
+							continue;
+						}
+
+						let packetIdent = determinePacketIdentifierFromPayload(packet['payload']);
+
+						if (!packet_idents.includes(packetIdent)) {
+							packet_idents.push(packetIdent);
+						}
+						packets.push(packet);
+
+						packet_live_view_table_body.append(`
+							<tr class="packet-live-view-row" id="packet-live-view-table-row-${packetIdent}" ondblclick="showColorPickerModalBeforeHighlight('${packetIdent}')" title="Double click to highlight all packets with the same payload">
+								<td class="packet-live-view-col">${new Date().toLocaleTimeString()}</td>
+								<td class="packet-live-view-col">${packetIdent}</td>
+								<td class="packet-live-view-col">${packet.src_addr} <span class="bi bi-arrow-right"></span> ${packet.dst_addr}</td>
+								<td class="packet-live-view-col" style="cursor:pointer;overflow-x: hidden !important; max-height: 100px !important;" onclick="copyToClipboard('${packets.length - 1}')" title="Click to copy hex to clipboard">${packet.payload.substring(0, 55)}</td>
+							</tr>
+						`);
+					}
+				}
+				$('#packet-live-view-count').text(packets.length + 'x');
+			},
+			error: (data) => {
+				console.log("error while getting new packets: " + data);
+			}
+		});
+		$('#packet-live-view-last-update').text(new Date().getTime() - last_update + ' ms ago');
+		$('#packet-live-view-highlighted-count').text(highlighted_rows.length + 'x');
+		last_update = new Date().getTime();
+		updatePacketLogHighlights();
+	}
+
+	function createNewPacketLogUpdateInterval(interval) {
+		clearInterval(packet_loop);
+		packet_loop = setInterval(() => {
+			requestPacketLog();
+		}, interval === undefined ? parseInt($('#pydivert-update-interval').val()) : interval);
+	}
+
+	$(document).ready(() => {
+		last_update = new Date().getTime();
+		packet_live_view_table_body = $('#packet-live-view-table-body');
+
+		// Update sniffer values
+		packet_live_view_table_body.empty();
+
+		$.ajax({ // get sniffer status
+			url: 'http://127.0.0.1:5001/get_status',
+			type: 'GET',
+			dataType: 'text',
+			data: {},
+			success: (data) => {
+				updateSnifferStatus(JSON.parse(data)['status']);
+			},
+			error: (data) => {
+				console.log("error while getting sniffer status: " + data);
+			}
+		});
+
+		$.ajax({ // get sniffer filter
+			url: 'http://127.0.0.1:5001/get_sniffer_filter',
+			type: 'GET',
+			dataType: 'text',
+			data: {},
+			success: (data) => {
+				$('#pydivert-filter').val(JSON.parse(data)['filter']);
+			},
+			error: (data) => {
+				console.log("error while getting sniffer filter: " + data);
+			}
+		});
+
+		$('#config-btn-save').click(() => { // set config save button onclick (fastapi: def set_sniffer_filter(self, filter: str) -> dict:)
+			saveConfiguration();
+		});
+
+		setInterval(() => { // remove old packets, sort by highlight & time
+			const _dt = new Date();
+			const _dt_split = _dt.toLocaleTimeString().split(':');
+
+			packet_live_view_table_body.children().each((index, element) => {
+
+
+				const time_split = $(element).children().first().text().split(':');
+				if ((_dt_split[0] - time_split[0]) * 3600 + (_dt_split[1] - time_split[1]) * 60 + (_dt_split[2] - time_split[2]) > parseInt($('#pydivert-max-packet-lifetime').val())) {
+
+					// remove from packet_idents
+					let ident = $(element).children().eq(1).text();
+
+
+					// remove from packets
+					var is_highlighted = false;
+					for (let i = 0; i < highlighted_rows.length; i++) {
+						if (highlighted_rows[i]['ident'] === ident) {
+							is_highlighted = true;
+							break;
+						}
+					}
+					if (!is_highlighted) {
+						$(element).remove();
+						packets.splice(index, 1);
+					}
+				}
+			});
+
+			// sort by time asc
+			const sorted = [];
+			packet_live_view_table_body.children().each((index, element) => {
+				sorted.push(element);
+			});
+			sorted.sort((a, b) => {
+				if (a.children[0].innerText > b.children[0].innerText) {
+					return -1;
+				} else if (a.children[0].innerText > b.children[0].innerText) {
+					return 1;
+				} else {
+					return 0;
+				}
+			});
+			packet_live_view_table_body.empty();
+			for (let i = 0; i < sorted.length; i++) {
+				packet_live_view_table_body.append(sorted[i]);
+			}
+
+		}, 1000);
+
+		$('#packet-live-view-clear-btn').click(() => { // clear button
+			packet_live_view_table_body.empty();
+			packets = [];
+			$('#packet-live-view-count').text('0x');
+		});
+
+
+		setInterval(() => { // check if packet log update interval has changed
+			let _interval = parseInt($('#pydivert-update-interval').val());
+			if (previous_packet_loop_interval !== _interval) {
+				previous_packet_loop_interval = _interval;
+				createNewPacketLogUpdateInterval(_interval);
+			}
+		}, 100);
+
+
+		createNewPacketLogUpdateInterval();
+	});
+</script>

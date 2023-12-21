@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Network Traffic Rules</title>
+
+		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}">
+
+		<!-- allow all cors -->
+		<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+		<meta name="referrer" content="no-referrer" />
+
+
+		<!-- jquery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+		<!-- bootstrap -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+		<!-- bootstrap-table -->
+		<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.css">
+		<script src="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.js"></script>
+
+		<!-- bootstrap-table-filter-control -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.16.0/extensions/filter-control/bootstrap-table-filter-control.min.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.16.0/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+
+		<!-- bootstrap-icons -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+
+
+		<style>
+			body {
+				background-color: #1e1e1e;
+				color: #fff;
+			}
+
+			.site-title {
+				color: #fff;
+				margin-top: 20px;
+				margin-bottom: 20px;
+				font-family: 'Roboto', sans-serif;
+				font-size: 40px;
+				font-weight: bold;
+				user-select: none;
+
+			}
+
+			.nav-tabs {
+				background-color: #1e1e1e;
+				border-color: #8d8d8d;
+				border-radius: 3px;
+				user-select: none;
+			}
+
+			.nav-tabs > li > a {
+				color: #fff;
+			}
+
+			.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+				color: #fff;
+				background-color: #222;
+				border-color: #8d8d8d;
+			}
+
+			.nav-tabs > li > a:hover {
+				background-color: #222;
+				border-color: #8d8d8d;
+			}
+
+			.nav-tabs > li > a:focus {
+				background-color: #222;
+				border-color: #8d8d8d;
+			}
+
+			.nav-tabs > li > a:active {
+				background-color: #222;
+				border-color: #8d8d8d;
+			}
+
+			.panel {
+				margin-top: 5px;
+				background-color: #222;
+				border-color: #8d8d8d;
+				border-radius: 3px;
+				user-select: none;
+			}
+
+			.panel-default>.panel-heading {
+				color: #fff;
+				margin-top: 0;
+				background-color: #222;
+				border-color: #8d8d8d;
+				border-radius: 3px;
+			}
+
+			.panel-heading {
+				border-bottom: 1px solid transparent;
+				border-top-left-radius: 3px;
+				border-top-right-radius: 3px;
+				font-family: 'Roboto', sans-serif;
+				text-transform: uppercase;
+				font-size: 17px;
+				font-weight: bold;
+				text-align: right;
+			}
+
+			.rule-panel-card {
+				margin-top: 5px;
+				margin-bottom: 5px;
+				background-color: #222;
+				border-color: #8d8d8d;
+				border-radius: 3px;
+				border: 1px solid;
+				user-select: none;
+			}
+			.rule-panel-card:hover {
+				background-color: #333;
+			}
+
+
+			#total-rules {
+				color: #a2a2a2;
+				font-size: 20px;
+				font-weight: bold;
+			}
+
+			#active-rules {
+				color: #b7e09e;
+				font-size: 20px;
+				font-weight: bold;
+			}
+
+			.info-text {
+				color: #e0e0e0;
+				font-size: 15px;
+				font-weight: bold;
+				text-transform: uppercase;
+				align-self: center;
+				horizontal-align: center;
+			}
+
+			.info-title {
+				padding-top: 10px;
+				text-align: center;
+			}
+
+			.info-pydivert-mask {
+				margin-top: 5px;
+				background-color: #333;
+				color: #a9a9a9;
+				border-color: #8d8d8d;
+				border-radius: 3px;
+				font-family: 'Roboto', sans-serif;
+				font-size: 15px;
+				align-self: center;
+				horizontal-align: center;
+				-webkit-appearance: none;
+				-moz-appearance: none;
+				appearance: none;
+			}
+
+			input[type="text"] {
+				background-color: #222;
+				color: #fff;
+				border: 1px solid #8d8d8d;
+			}
+			input[type="text"]:focus {
+				background-color: #222;
+				color: #fff;
+				border: 1px solid #8d8d8d;
+			}
+
+			/* Checkbox Styles */
+			[type="checkbox"] {
+				position: relative;
+				width: 1.5em;
+				height: 1.5em;
+				color: #fff;
+				background-color: #222;
+				border: 1px solid #8d8d8d;
+				-webkit-appearance: none;
+				-moz-appearance: none;
+				appearance: none;
+				outline: 0;
+				cursor: pointer;
+				transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+				font-weight: bold;
+				font-family: 'Roboto', sans-serif;
+			}
+
+			[type="checkbox"]:checked {
+				color: #fff;
+				background-color: #222;
+				border: 1px solid #8d8d8d;
+			}
+
+			[type="checkbox"]:checked::before {
+				position: absolute;
+				font: 13px/1 'Open Sans', sans-serif;
+				left: 0.4em;
+				top: 0.15em;
+				content: '\02143';
+				transform: rotate(40deg);
+			}
+		</style>
+	</head>
+	<body>
+		<!-- title & navbar -->
+		{{ render_template('components/header.html', path=path) | safe }}
+
+		<!-- content -->
+		<div class="container-fluid">
+
+			<div class="row">
+				<!-- info-panel -->
+				{{ render_template("partials/info-panel.html", system_messages=system_messages) | safe }}
+
+				<!-- content -->
+				{{ render_template('views/'+path+'.html') | safe }}
+			</div>
+		</div>
+	</body>
+	<script>
+		function hex2a(hex) {
+		    var str = '';
+		    for (var i = 0; i < hex.length; i += 2) {
+		        var v = parseInt(hex.substr(i, 2), 16);
+		        if (v) str += String.fromCharCode(v);
+		    }
+		    return str;
+		}
+
+
+	</script>
+</html>

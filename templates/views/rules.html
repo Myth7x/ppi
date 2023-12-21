@@ -1,0 +1,342 @@
+
+<style>
+	.rule-row {
+		background-color: #222;
+		color: #fff;
+		margin-top: 15px;
+
+	}
+
+	.rule {
+		text-align: center;
+		vertical-align: middle !important;
+		height: 100%;
+
+		border: 1px solid #8d8d8d;
+		color: #fff;
+		background-color: #222;
+		margin-top: 5px;
+		user-select: none;
+	}
+
+
+    .rule-state-checkbox {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
+	.rule-mask {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
+
+
+
+
+
+
+	select, option {
+		background-color: #222 !important;
+		color: #fff !important;
+		border: 1px solid #8d8d8d;
+	}
+
+	.btn-primary {
+		background-color: #222 !important;
+		color: #fff !important;
+		border: 1px solid #8d8d8d;
+	}
+	.btn-primary:hover {
+		background-color: #808080 !important;
+		color: #80de61 !important;
+		border: 1px solid #8d8d8d;
+		transition: 0.3s;
+	}
+
+	.info-text-app-state {
+		color: #916868 !important;
+		font-size: 15px;
+		font-weight: bold;
+		font-family: 'Roboto', sans-serif;
+		text-transform: uppercase;
+	}
+
+</style>
+<div class="col-md-12">
+	<div class="panel">
+		<div class="row" style="margin-left:5px;margin-top:15px;">
+			<div class="col-md-12">
+				<button class="btn-primary" id="addRowBtn" title="Add rule"><i class="bi bi-plus"></i> Add new rule</button>
+				<button class="btn-primary" id="saveCSVBtn" title="Save rules to csv"><i class="bi bi-save"></i> Export CSV</button>
+				<button class="btn-primary" id="syncBtn" title="Fetch Updated Rules"><i class="bi bi-arrow-repeat"></i> Reload</button>
+				<button class="btn-primary" id="applyBtn" title="Push Rules to Driver"><i class="bi bi-arrow-up"></i> Push/Save</button>
+			</div>
+		</div>
+
+		<div class="row" style="">
+			<div class="col-md-12">
+				 <table id="itemsTable" class="table-striped table-hover table-dark"
+					 data-toggle="table"
+					 data-toolbar="#toolbar"
+					 data-toolbar-align="right"
+					 data-buttons-align="right">
+					 <thead>
+						<tr>
+							<th data-field="index" data-sortable="true" class="col-1">#</th>
+							<th data-field="active" data-sortable="true" class="col-1">Active</th>
+							<th data-field="name" data-sortable="true" class="col-1">Name</th>
+							<th data-field="direction" data-sortable="true" class="col-1">Direction</th>
+							<th data-field="rule-type" data-sortable="true" class="col-1">Type</th>
+							<th data-field="type-config" data-sortable="true" class="col-5">Settings</th>
+							<th data-field="remove" data-sortable="true" class="col-1">Manage</th>
+						</tr>
+					 </thead>
+					 <tbody>
+
+					 </tbody>
+				 </table>
+			</div>
+		</div>
+
+	</div>
+</div>
+<script>
+	function generateRowPart1(e) {
+		const type = $(e).val();
+		const type_config = $(e).parent().parent().find('.rule-type-config');
+		if (type == 'Block') {
+			type_config.html('<input type="text" class="form-control rule-type-config-target" placeholder="00 00">');
+		} else if (type == 'Modify') {
+			type_config.html(`
+				<select class="form-control rule-type-config-select" onchange="generateRowPart2(this)">
+					<option value="Replace" selected>Replace</option>
+					<option value="Append">Append</option>
+					<option value="Prepend">Prepend</option>
+				</select>
+				<input type="text" class="form-control rule-type-config-target" placeholder="00 00">
+				<input type="text" class="form-control rule-type-config-data" placeholder="01 00">
+			`);
+		}
+	}
+
+	function generateRowPart2(e) {
+		const type = $(e).val();
+		const type_config = $(e).parent();
+		type_config.find('input').remove();
+		switch (type) {
+			case 'Replace':
+				type_config.append('<input type="text" class="form-control rule-type-config-target" placeholder="00 00">');
+				type_config.append('<input type="text" class="form-control rule-type-config-data" placeholder="01 00">');
+				break;
+			case 'Append':
+				type_config.append('<input type="text" class="form-control rule-type-config-target" placeholder="00 00">');
+				type_config.append('<input type="text" class="form-control rule-type-config-data" placeholder="01 00">');
+				break;
+			case 'Prepend':
+				type_config.append('<input type="text" class="form-control rule-type-config-target" placeholder="00 00">');
+				type_config.append('<input type="text" class="form-control rule-type-config-data" placeholder="01 00">');
+				break;
+		}
+	}
+
+	function removeRule(e) {
+		$(e).parent().parent().remove();
+		const table = $('#itemsTable');
+		const rowCount = table.find('tbody tr').length;
+		for (let i = 0; i < rowCount; i++) {
+			table.find('tbody tr').eq(i).find('td').eq(0).html(i + 1);
+		}
+	}
+
+	function copyRule(e) {
+		const table = $('#itemsTable');
+		const rowCount = table.find('tbody tr').length;
+		const row = $(e).parent().parent();
+		const newRow = `
+			<tr class="rule-row">
+				<td class="rule">${rowCount + 1}</td>
+				<td class="rule"><input type="checkbox" class="rule-state-checkbox" ${row.find('.rule-state-checkbox').prop('checked') ? 'checked' : ''}></td>
+				<td class="rule"><input type="text" class="form-control rule-name" placeholder="Name" value="${row.find('.rule-name').val()!=undefined&&row.find('.rule-name').val()!=''?row.find('.rule-name').val()+' (copy)':'Noname (copy)'}"></td>
+				<td class="rule">
+					<select class="form-control direction">
+						<option value="Outbound" ${row.find('.direction').val() == 'Outbound' ? 'selected' : ''}>Outbound</option>
+						<option value="Inbound" ${row.find('.direction').val() == 'Inbound' ? 'selected' : ''}>Inbound</option>
+					</select>
+				</td>
+				<td class="rule">
+					<select class="form-control rule-type" onchange="generateRowPart1(this)">
+						<option value="Block" ${row.find('.rule-type').val() == 'Block' ? 'selected' : ''}>Block</option>
+						<option value="Modify" ${row.find('.rule-type').val() == 'Modify' ? 'selected' : ''}>Modify</option>
+					</select>
+				</td>
+				<td class="rule">
+					<div class="rule-type-config">
+						<input type="text" class="form-control rule-type-config-target" placeholder="00 00" value="${row.find('.rule-type-config-target').val()}">
+					</div>
+				</td>
+				<td class="rule">
+					<button class="btn btn-primary" id="removeRule" onclick="removeRule(this)" title="Remove rule"><i class="bi bi-trash"></i></button>
+					<button class="btn btn-primary" id="copyRule" onclick="copyRule(this)" title="Copy rule"><i class="bi bi-clipboard"></i></button>
+				</td>
+			</tr>
+		`;
+		table.find('tbody').append(newRow);
+	}
+
+	$(document).ready(function() {
+
+		// make get request to /get_rules
+		$.ajax({
+			url: 'http://127.0.0.1:5000/get_rules',
+			type: 'GET',
+			success: (data) => {
+				const table = $('#itemsTable');
+				table.find('tbody').html('');
+				for (let i = 0; i < data.length; i++) {
+					const rule = data[i];
+					const newRow = `
+						<tr class="rule-row">
+							<td class="rule">${i + 1}</td>
+							<td class="rule"><input type="checkbox" class="rule-state-checkbox" ${rule.active == 1 ? 'checked' : ''}></td>
+							<td class="rule"><input type="text" class="form-control rule-name" placeholder="Name" value="${rule.name}"></td>
+							<td class="rule">
+								<select class="form-control direction">
+									<option value="Outbound" ${rule.direction == 'Outbound' ? 'selected' : ''}>Outbound</option>
+									<option value="Inbound" ${rule.direction == 'Inbound' ? 'selected' : ''}>Inbound</option>
+								</select>
+							</td>
+							<td class="rule">
+								<select class="form-control rule-type" onchange="generateRowPart1(this)">
+									<option value="Block" ${rule.type == 'Block' ? 'selected' : ''}>Block</option>
+									<option value="Modify" ${rule.type == 'Modify' ? 'selected' : ''}>Modify</option>
+								</select>
+							</td>
+							<td class="rule">
+								<div class="rule-type-config">
+									<input type="text" class="form-control rule-type-config-target" placeholder="00 00" value="${rule['type-config']}">
+								</div>
+							</td>
+							<td class="rule">
+								<button class="btn btn-primary" id="removeRule" onclick="removeRule(this)" title="Remove rule"><i class="bi bi-trash"></i></button>
+								<button class="btn btn-primary" id="copyRule" onclick="copyRule(this)" title="Copy rule"><i class="bi bi-clipboard"></i></button>
+							</td>
+						</tr>
+					`;
+					table.find('tbody').append(newRow);
+
+					if (rule['type'] === 'Modify') {
+						const type_config = table.find('tbody tr').eq(i).find('.rule-type-config');
+						type_config.html(`
+							<select class="form-control rule-type-config-select" onchange="generateRowPart2(this)">
+								<option value="Replace" ${rule['type-config']['type'] === 'Replace' ? 'selected' : ''}>Replace</option>
+								<option value="Append" ${rule['type-config']['type'] === 'Append' ? 'selected' : ''}>Append</option>
+								<option value="Prepend" ${rule['type-config']['type'] === 'Prepend' ? 'selected' : ''}>Prepend</option>
+							</select>
+						`);
+						if (rule['type-config']['type'] === 'Replace') {
+							type_config.append(`<input type="text" class="form-control rule-type-config-target" placeholder="00 00" value="${rule['type-config']['target']}">`);
+							type_config.append(`<input type="text" class="form-control rule-type-config-data" placeholder="01 00" value="${rule['type-config']['data']}">`);
+						} else if (rule['type-config']['type'] === 'Append') {
+							type_config.append(`<input type="text" class="form-control rule-type-config-target" placeholder="00 00" value="${rule['type-config']['target']}">`);
+							type_config.append(`<input type="text" class="form-control rule-type-config-data" placeholder="01 00" value="${rule['type-config']['data']}">`);
+						} else if (rule['type-config']['type'] === 'Prepend') {
+							type_config.append(`<input type="text" class="form-control rule-type-config-target" placeholder="00 00" value="${rule['type-config']['target']}">`);
+							type_config.append(`<input type="text" class="form-control rule-type-config-data" placeholder="01 00" value="${rule['type-config']['data']}">`);
+						}
+					} else if (rule['type'] === 'Block') {
+						const type_config = table.find('tbody tr').eq(i).find('.rule-type-config');
+						type_config.html(`<input type="text" class="form-control rule-type-config-target" placeholder="00 00" value="${rule['type-config']['target']}">`);
+					} else {
+						console.log('Unknown rule type: ' + rule.type);
+					}
+				}
+			}
+		});
+
+		$('#applyBtn').click(() => {
+		    // make post request with json of rules to /set_rules
+			const table = $('#itemsTable');
+			const rowCount = table.find('tbody tr').length;
+			const rules = [];
+			for (let i = 0; i < rowCount; i++) {
+				const row = table.find('tbody tr').eq(i);
+				const rule = {
+					'active': row.find('.rule-state-checkbox').prop('checked') ? 1 : 0,
+					'name': row.find('.rule-name').val(),
+					'direction': row.find('.direction').val(),
+					'type': row.find('.rule-type').val(),
+					'type-config': {
+						'type': row.find('.rule-type-config-select').val(),
+						'target': row.find('.rule-type-config-target').val(),
+						'data': row.find('.rule-type-config-data').val()
+					}
+				};
+				if (rule.type == 'Modify') {
+					rule['type-config-data'] = row.find('.rule-type-config-data').val();
+				}
+				rules.push(rule);
+			}
+			$.ajax({
+				url: 'http://127.0.0.1:5000/set_rules',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+				'type': 'POST',
+				'data': JSON.stringify(rules),
+				'dataType': 'json',
+				'success': (data) => {
+					console.log(data);
+				}
+			});
+		});
+
+		$('#addRowBtn').click(function() {
+			const table = $('#itemsTable');
+			const rowCount = table.find('tbody tr').length;
+			const newRow = `
+				<tr class="rule-row">
+					<td class="rule">${rowCount + 1}</td>
+					<td class="rule"><input type="checkbox" class="rule-state-checkbox"></td>
+					<td class="rule"><input type="text" class="form-control rule-name" placeholder="Name"></td>
+					<td class="rule">
+						<select class="form-control direction">
+							<option value="Outbound">Outbound</option>
+							<option value="Inbound" selected>Inbound</option>
+						</select>
+					</td>
+					<td class="rule">
+						<select class="form-control rule-type" onchange="generateRowPart1(this)">
+							<option value="Block" selected>Block</option>
+							<option value="Modify">Modify</option>
+						</select>
+					</td>
+					<td class="rule">
+						<div class="rule-type-config">
+							<input type="text" class="form-control rule-type-config-target" placeholder="00 00">
+						</div>
+					</td>
+					<td class="rule">
+						<button class="btn btn-primary" id="removeRule" onclick="removeRule(this)"><i class="bi bi-trash"></i></button>
+						<button class="btn btn-primary" id="copyRule" onclick="copyRule(this)"><i class="bi bi-clipboard"></i></button>
+					</td>
+				</tr>
+			`;
+			table.find('tbody').append(newRow);
+
+		});
+
+		// on type change, regenerate type-config
+		$('.rule-type').change(function() {
+			generateRowPart1(this);
+		});
+
+		// on type-config change, regenerate type
+		$('.rule-type-config-select').change(function() {
+			generateRowPart2(this);
+		});
+
+
+	});
+</script>

@@ -1,0 +1,27 @@
+<style>
+	.logo-text {
+		color: #fff;
+		margin-top: 20px;
+		margin-bottom: 20px;
+		font-family: 'Roboto', sans-serif;
+		font-size: 40px;
+		font-weight: bold;
+		user-select: none;
+	}
+</style>
+<div class="col-12 header" style="margin-left: 20px;">
+	<div class="row">
+		<!-- nav-tabs -->
+		<div class="col-6">
+			<ul class="nav nav-tabs">
+				<li role="presentation" {% if path == 'home' %}class="active"{% endif %}><a href="/home">Home</a></li>
+				<li role="presentation" {% if path == 'rules' %}class="active"{% endif %}><a href="/rules">Rules</a></li>
+			</ul>
+		</div>
+
+		<!-- logo text -->
+		<div class="col-4"> <!-- Change from col-4 to col-6 -->
+			<p class="logo-text">Network Bubi <span class="bi bi-broadcast"></span></p>
+		</div>
+	</div>
+</div>

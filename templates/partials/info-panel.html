@@ -1,0 +1,152 @@
+<style>
+
+	.state-error-colortag {
+		display: inline-block;
+		width: 30px;
+		height: 30px;
+		background-color: #ee0000;
+		border-radius: 70%;
+		margin-right: 10px;
+		margin-bottom: 7px;
+	}
+
+	.state-error-row {
+		background-color: #222;
+		border-color: #ee0000 !important;
+		border-radius: 3px;
+		border: 1px solid;
+		user-select: none;
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+
+	.state-error, .state-error:hover, .state-error:focus {
+		font-family: 'Courier New', Courier, monospace;
+		font-size: 18px;
+		font-weight: bold;
+		width: 100%;
+		height: 100%;
+	}
+
+	.state-warning-colortag {
+		display: inline-block;
+		width: 30px;
+		height: 30px;
+		background-color: #ffaa00;
+		border-radius: 70%;
+		margin-right: 10px;
+		margin-bottom: 7px;
+	}
+
+	.state-warning-row {
+		background-color: #222;
+		border-color: #ffaa00 !important;
+		border-radius: 3px;
+		border: 1px solid;
+		user-select: none;
+		cursor: pointer;
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+
+	.state-warning, .state-warning:hover, .state-warning:focus {
+		font-family: 'Courier New', Courier, monospace;
+		font-size: 18px;
+		font-weight: bold;
+		width: 100%;
+		height: 100%;
+	}
+
+	.state-info-colortag {
+		display: inline-block;
+		width: 30px;
+		height: 30px;
+		background-color: #00aaee;
+		border-radius: 70%;
+		margin-right: 10px;
+		margin-bottom: 7px;
+	}
+
+	.state-info-row {
+		background-color: #222;
+		border-color: #00aaee !important;
+		border-radius: 3px;
+		border: 1px solid;
+		user-select: none;
+		cursor: pointer;
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+
+	.state-info, .state-info:hover, .state-info:focus {
+		font-family: 'Courier New', Courier, monospace;
+		font-size: 18px;
+		font-weight: bold;
+		width: 100%;
+		height: 100%;
+	}
+
+	.state-success-colortag {
+		display: inline-block;
+		width: 30px;
+		height: 30px;
+		background-color: #00ee00;
+		border-radius: 70%;
+		margin-right: 10px;
+		margin-bottom: 7px;
+	}
+
+	.state-success-row {
+		background-color: #222;
+		border-color: #00ee00 !important;
+		border-radius: 3px;
+		border: 1px solid;
+		user-select: none;
+		cursor: pointer;
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+
+	.state-success, .state-success:hover, .state-success:focus {
+		font-family: 'Courier New', Courier, monospace;
+		font-size: 18px;
+		font-weight: bold;
+		width: 100%;
+		height: 100%;
+	}
+
+	.state-success-row:hover, .state-info-row:hover, .state-warning-row:hover, .state-error-row:hover {
+		background-color: #333;
+	}
+</style>
+
+<div class="col-md-12" style="margin-top: 6px;">
+	{% for sysmsg in system_messages %}
+	<div class="panel state-{{sysmsg.type}}-row">
+		<div class="row" style="margin-top:15px;margin-left:5px;" title="click to dismiss">
+			<div class="col-md-1" title="click to dismiss">
+				<span class="state-{{sysmsg.type}}-colortag"></span>
+			</div>
+			<div class="col-md-9" title="click to dismiss">
+				<span class="state-{{sysmsg.type}}">{{sysmsg.message}}!</span>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+<script>
+	$(document).ready(function() {
+		$('.state-error-row').click(function() {
+			$(this).remove();
+		});
+		$('.state-warning-row').click(function() {
+			$(this).remove();
+		});
+		$('.state-info-row').click(function() {
+			$(this).remove();
+		});
+		$('.state-success-row').click(function() {
+			$(this).remove();
+		});
+	});
+</script>
