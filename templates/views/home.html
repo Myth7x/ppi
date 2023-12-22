@@ -5,17 +5,12 @@
 		border-color: #8d8d8d;
 		border-radius: 3px;
 		width: 100%;
+		color: #fff !important;
 	}
 	.btn-config:hover {
 		background-color: #333;
 		border-color: #8d8d8d;
-		color: #fff;
 
-	}
-
-	#packet-live-view-table {
-		overflow-x: hidden;
-		overflow-y: hidden;
 	}
 
 	.packet-live-view-row {
@@ -23,51 +18,53 @@
 		border-color: #8d8d8d;
 		border-radius: 3px;
 	}
-
 	.packet-live-view-row:hover {
 		background-color: #333;
 		border-color: #8d8d8d;
-	}
-
-	.packet-live-view-col {
-		border: 1px solid #8d8d8d;
-	}
-
-	.btn-col {
-		background-color: #222;
-		border-color: #8d8d8d;
-		border-radius: 3px;
-		font-size: 12px;
-		font-family: 'Roboto', sans-serif;
-		font-weight: bold;
-	}
-
-	.btn-col:hover {
-		background-color: #333;
-		border-color: #8d8d8d;
-		color: #fff;
 	}
 
 	.info-title {
 		text-align: right;
 	}
 
-	/* row colors */
 	.packet-live-view-col {
 		color: #fff;
 		max-width: 500px;
 		overflow-x: hidden;
 		text-overflow: ellipsis;
+		border: 1px solid #8d8d8d;
 	}
 
 	.sniffer-status-stopped {
-		color: #ff0000 !important;
+		color: #855454;
 	}
 	.sniffer-status-started {
-		color: #00ff00 !important;
+		color: #609360;
 	}
 	.sniffer-status-restarting {
-		color: #ffff00 !important;
+		color: #8f8f5e;
+	}
+
+	#popup-message {
+		transform: translate3d(0, 0, 0);
+		-webkit-transform: translate3d(0, 0, 0);
+		-moz-transform: translate3d(0, 0, 0);
+		-o-transform: translate3d(0, 0, 0);
+		-ms-transform: translate3d(0, 0, 0);
+		-webkit-transition: all 0.5s ease;
+		-moz-transition: all 0.5s ease;
+	}
+
+	.modal-body, .modal-footer, .modal-header {
+		color: #fff;
+		background-color: none;
+	}
+
+	.modal {
+		background-color: rgba(0,0,0,0);
+	}
+	.modal-backdrop {
+		background-color: rgba(0,0,0,0);
 	}
 
 </style>
@@ -184,11 +181,9 @@
 	</div>
 </div>
 
-
-
 <!-- slidein messages (for notifications, like steam notifications) -->
 <div class="modal fade" id="popup-message" tabindex="-1" role="dialog" aria-labelledby="popup-message-title" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
+	<div class="modal-dialog" role="document">
 		<div class="modal-content" style="background-color: rgb(34,34,34); border-color: #8d8d8d;">
 			<div class="modal-header">
 				<h5 class="modal-title" id="popup-message-title">Notification</h5>
@@ -230,9 +225,21 @@
 		$('#popup-message-title').text(dict['title']);
 		$('#popup-message-text').text(dict['text']);
 		$('#popup-message').modal('show');
+
+		$('.modal-backdrop').css('background-color', 'rgba(0,0,0,0)');
+		$('#popup-message').css('top', $(window).height() - $('#popup-message').height()+5);
+		$('#popup-message').css('left', $(window).width() - $('#popup-message').width()-5);
 		setTimeout(() => {
 			$('#popup-message').modal('hide');
 		}, duration);
+		setInterval(() => {
+			if ($('#popup-message').css('top') > $(window).height() + $('#popup-message').height()) {
+				$('#popup-message').modal('hide');
+			}
+			$('#popup-message').css('top', $('#popup-message').css('top') + 1);
+		}, 1);
+
+
 	}
 
 	const updateSnifferStatus = (state) => {
@@ -242,8 +249,8 @@
 			$('#sniffer-status').removeClass('sniffer-status-started');
 			$('#sniffer-status').addClass('sniffer-status-restarting');
 			$('#sniffer-start-stop-btn').text('Restarting...');
-			$('#sniffer-start-stop-btn').attr('disabled', 'disabled');
-			$('#sniffer-stop-all-btn').attr('disabled', 'disabled');
+			$('#sniffer-start-stop-btn').addClass('disabled');
+			$('#sniffer-stop-all-btn').removeClass('disabled');
 		} else if (state === 'enabled') {
 			$('#sniffer-status').text('started');
 			$('#sniffer-status').removeClass('sniffer-status-stopped');
@@ -263,7 +270,6 @@
 			$('#sniffer-start-stop-btn').attr('onclick', 'manageSniffer("enabled")');
 			$('#sniffer-start-stop-btn').html('Start <span class="bi bi-play-circle-fill" style="color: #00ff00;"></span>');
 			$('#sniffer-start-stop-btn').removeAttr('disabled');
-			$('#sniffer-stop-all-btn').removeAttr('disabled');
 		} else {
 			console.log('unknown state: ' + state);
 		}

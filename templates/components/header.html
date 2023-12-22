@@ -1,77 +1,246 @@
 <style>
-	.nav {
-		max-width: 100%;
-		margin: 10px;
-		font-family: 'Roboto', sans-serif;
-		font-size: 20px;
-		font-weight: bold;
-		user-select: none;
-		text-align: center;
-		text-transform: uppercase;
-		background: linear-gradient(to left, rgba(100, 100, 100, 0.55), transparent);
-	}
 
+	.nav-tabs {
+		background-color: #1e1e1e;
+		border-color: #8d8d8d;
+		border-radius: 3px;
+		user-select: none;
+	}
 	.nav-tabs {
 		border-bottom: none;
 	}
-
 	.nav-tabs > li > a {
-		color: #fff;
 		background-color: #222;
 	}
-
-	.header-logo {
-		font-family: Consolas, sans-serif;
-		font-size: 20px;
-		font-weight: bold;
-		background: linear-gradient(to right, rgba(100, 100, 100, 0.55), transparent);
-		user-select: none;
+	.nav-tabs > li > a:hover, .nav-tabs > li > a:focus, .nav-tabs > li > a:active {
+		background-color: #222;
+		border-color: #8d8d8d;
 	}
 
-	.header-logo span {
-		color: #fff;
+	.fas:hover, .fas:focus, .fas:active, .bi:hover, .bi:focus, .bi:active {
+		text-decoration: none;
+		transform: scale(1.1);
+	}
+
+	@keyframes gradient-bg {
+		0% {
+			background-position: -100% 0%;
+		}
+		50% {
+			background-position: 100% 0%;
+		}
+		100% {
+			background-position: -100% 0%;
+		}
+	}
+	.gradient-header-bg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 40px;
+		background: linear-gradient(270deg, #002228FF, rgba(0, 0, 0, 0.61), #002228FF);
+		background-size: 400% 400%;
+		animation: gradient-bg 15s ease infinite;
+
+		-webkit-animation: gradient-bg 15s ease infinite;
+		-moz-animation: gradient-bg 15s ease infinite;
+		-ms-animation: gradient-bg 15s ease infinite;
+		-o-animation: gradient-bg 15s ease infinite;
+		cursor: pointer;
+	}
+
+
+	.float-left {
+		position: absolute;
+		left: 13px;
+		margin-top: 6px;
+	}
+
+	.float-right {
+		position: fixed;
+		right: 3.5%;
+		margin-top: 3px;
+
 	}
 
 	.float-center {
 		position: absolute;
 		left: 50%;
-		margin-left: -100px;
+		margin-left: -50px;
 		margin-top: 3px;
-		text-decoration: underline;
-	}
-	body > div.container-fluid.header > div > div > p > a {
-		color: #fff;
-		cursor: pointer;
 	}
 
-	.float-right {
+
+
+	@keyframes header_text_idle {
+		0% {
+			color: rgba(148, 141, 118, 0.5);
+			text-shadow: 0 0px 1px rgba(255, 255, 255, 0.00);
+		} 50% {
+			color: rgba(29, 176, 164, 0.5);
+			text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+		} 100% {
+			color: rgba(148, 144, 118, 0.5);
+			text-shadow: 0 0px 1px rgba(255, 255, 255, 0.00);
+		}
+	}
+
+	@keyframes time-color {
+		0% {
+			color: rgba(255, 255, 255, 0.2);
+		}
+		16% {
+			color: rgba(255, 255, 255, 0.25);
+		}
+		33% {
+			color: rgba(255, 255, 255, 0.3);
+		}
+		50% {
+			color: rgba(255, 255, 255, 0.35);
+		}
+		66% {
+			color: rgba(255, 255, 255, 0.4);
+		}
+		83% {
+			color: rgba(255, 255, 255, 0.45);
+		}
+		100% {
+			color: rgba(255, 255, 255, 0.5);
+		}
+	}
+
+	#time {
+		color: rgba(255, 255, 255, 0.49);
+		font-size: 15px;
+		top: 20px;
+
+		animation: time-color 5s ease infinite;
+		-webkit-animation: time-color 5s ease infinite;
+		-moz-animation: time-color 5s ease infinite;
+		-ms-animation: time-color 5s ease infinite;
+		-o-animation: time-color 5s ease infinite;
+
+		text-shadow: 0 0 0px rgba(255, 255, 255, 0.25);
+		transition: all 0.2s ease;
+		block-size: 100%;
+	}
+
+
+	#header-bi-logo, #header-bi-github {
 		position: absolute;
-		right: 0;
-		margin-right: 20px;
-		margin-top: 3px;
+		top: 1px;
+
+		font-size: 30px;
+		color: #fff;
+		text-shadow: 0 0 0px rgba(255, 255, 255, 0.0);
+
+		transition: all 0.2s ease;
+		cursor: pointer;
+
+		animation: header_text_idle 5s ease infinite;
+		-webkit-animation: header_text_idle 5s ease infinite;
+		-moz-animation: header_text_idle 5s ease infinite;
+		-ms-animation: header_text_idle 5s ease infinite;
+		-o-animation: header_text_idle 5s ease infinite;
 	}
 
+	#header-bi-logo:hover, #header-bi-github:hover, #header-bi-logo:focus, #header-bi-github:focus, #header-bi-logo:active, #header-bi-github:active, .fa-github:hover, .fa-github:focus, .fa-github:active {
+		color: #fff !important;
+		text-shadow: 0 0 0px rgba(255, 255, 255, 0.0) !important;
+	}
+
+	.gradient-header-bg {
+		border-bottom: 1px solid rgba(255, 255, 255, 0.52);
+	}
+
+	:root {
+		  --black0: #101213;
+		  --black1: #141718;
+		  --black2: #111314;
+		  --white1: #d7f3f5;
+		  --white2: #bfdaf0;
+		  --primary1: #284f68;
+		  --primary2: #12232f;
+		  --bs-md:
+			rgba(0, 0, 0, 0.10) 0 3px 3px 0,
+			rgba(0, 0, 0, 0.10) 0 6px 6px 0;
+		  --bs-xl:
+			rgba(0, 0, 0, 0.14) 0px 8px 10px 1px,
+			rgba(0, 0, 0, 0.12) 0px 3px 14px 2px,
+			rgba(0, 0, 0, 0.2) 0px 2px 4px -1px;
+	}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  height: calc(100vh - calc(100vh - 100%));
+  font-size: 18px;
+}
+
+body {
+  color: var(--white2);
+  background: var(--black1);
+  max-height: 100%;
+  height: 100%;
+  font-family: monospace, sans-serif;
+  font-size: 100%;
+  overflow: hidden;
+}
+
+.title h2 {
+  width: fit-content;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+
+.options-fill input {
+  margin-left: auto;
+}
+
+@media screen and (max-width: 1000px) {
+  html {
+    font-size: 16px
+  }
+}
+
+@media (max-width: 650px),
+(max-height: 650px) {
+  html {
+    font-size: 14px
+  }
+}
 </style>
-<div class="container-fluid header">
-	<div class="row">
-		<div class="col-12">
-			<!-- left title center github right time -->
-			<p class="header-logo">payload bubi <span class="bi bi-cloud-upload-fill"></span><a href="https://github.com/Myth7x/ppi" target="_blank" class="float-center"> repo </a><span class="float-right" id="time"></span></p>
-
+<div class="header">
+	<div class="gradient-header-bg">
+		<div class="float-left">
+			pPI - Web <i id="header-bi-logo" class="fas fa-cat" title=where cat?" style="margin-left: 15px;"></i>
 		</div>
-		<ul class="col-10 nav nav-tabs">
-
-			<li role="presentation" {% if path == 'home' %}class="active"{% endif %}><a href="/home">Home</a></li>
-			<li role="presentation" {% if path == 'rules' %}class="active"{% endif %}><a href="/rules">Rules</a></li>
-		</ul>
-
+		<div class="float-center">
+			<span id="time" title="uhh... time?"></span>
+		</div>
+		<div class="float-right">
+			<a href="htpps://github.com/Myth7x/ppi"><i class="fab fa-github" id="header-bi-github" title="cum in repo"></i></a>
+		</div>
 	</div>
+	<br><br>
+	<ul class="col-12 nav nav-tabs">
+		<li role="presentation" {% if path == 'home' %}class="active"{% endif %}><a href="/home">Home</a></li>
+		<li role="presentation" {% if path == 'rules' %}class="active"{% endif %}><a href="/rules">Rules</a></li>
+	</ul>
 </div>
 <script>
 	$(document).ready(function() {
-		setInterval(function() {
-			var date = new Date().toLocaleString();
-			$('#time').html(date);
-		}, 1000);
+		setInterval(function() { $('#time').html(new Date().toLocaleString()); }, 1000); // time
+		setInterval(function() { // header text animation
+			$('#header-bi-logo').css('transform', 'scaleX(-1)');
+			$('#header-bi-logo').css('-webkit-transform', 'scaleX(-1)');
+			$('#header-bi-logo').css('-moz-transform', 'scaleX(-1)');
+			$('#header-bi-logo').css('-ms-transform', 'scaleX(-1)');
+		}, 500);
 	});
 </script>

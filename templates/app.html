@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Network Traffic Rules</title>
+		<title>Python Payload Inspection WebApp</title>
 
-		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}">
+		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" id="favicon" type="image/x-icon">
 
 		<!-- allow all cors -->
 		<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
@@ -27,29 +27,19 @@
 
 		<!-- bootstrap-icons -->
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
-
+		<!-- fontawesome all -->
+		<!-- 1. Minified with default options -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+		<!-- 2. Minified with solid icons -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css">
+		<!-- 3. Minified with brand icons -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css">
 
 		<style>
-			body {
-				background-color: #1e1e1e;
-				color: #fff;
-			}
-
-			.site-title {
-				color: #fff;
-				margin-top: 20px;
-				margin-bottom: 20px;
-				font-family: 'Roboto', sans-serif;
-				font-size: 40px;
-				font-weight: bold;
-				user-select: none;
-
-			}
 
 			.nav-tabs {
 				background-color: #1e1e1e;
 				border-color: #8d8d8d;
-				border-radius: 3px;
 				user-select: none;
 			}
 
@@ -203,6 +193,32 @@
 				content: '\02143';
 				transform: rotate(40deg);
 			}
+
+			@keyframes gradient {
+				0% {
+					background-position: 0% 50%;
+				}
+				50% {
+					background-position: 100% 50%;
+				}
+				100% {
+					background-position: 0% 50%;
+				}
+			}
+			body {
+				background: linear-gradient(270deg, #1a2e31, rgba(0, 0, 0, 0.61), #1a2e31);
+				background-size: 400% 400%;
+				animation: gradient 15s ease infinite;
+				-webkit-animation: gradient 15s ease infinite;
+				-moz-animation: gradient 15s ease infinite;
+				-o-animation: gradient 15s ease infinite;
+				font-family: 'Roboto', sans-serif;
+				font-size: 14px;
+				font-weight: bold;
+				color: #fff;
+				user-select: none;
+			}
+
 		</style>
 	</head>
 	<body>
